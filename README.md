@@ -48,7 +48,11 @@ curl -sS -O https://raw.githubusercontent.com/woniu336/nixvis/main/install.sh &&
 
 ```
 sudo chown nixvis:nixvis /opt/nixvis/nixvis
+sudo chmod +x /opt/nixvis/nixvis
+sudo systemctl start nixvis
 ```
+
+
 
 如果添加到 adm 组后仍有权限问题，可以检查：
 
