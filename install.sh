@@ -173,23 +173,27 @@ After=network.target
 
 [Service]
 Type=simple
-User=$APP_USER
-Group=$APP_GROUP
+User=root
+Group=root
 WorkingDirectory=$DATA_DIR
 ExecStart=$INSTALL_DIR/nixvis
 Restart=on-failure
 RestartSec=5s
 
 # 安全设置
-NoNewPrivileges=true
+NoNewPrivileges=false
 PrivateTmp=true
-ProtectSystem=strict
-ProtectHome=true
+ProtectSystem=false
+ProtectHome=false
 ReadWritePaths=$DATA_DIR $CONFIG_DIR /var/log/nixvis
 
 # 环境变量
 Environment="HOME=$DATA_DIR"
 Environment="NIXVIS_SYSTEM_MODE=1"
+
+# 允许执行系统命令
+AmbientCapabilities=CAP_NET_RAW CAP_NET_ADMIN CAP_SETUID CAP_SETGID
+CapabilityBoundingSet=CAP_NET_RAW CAP_NET_ADMIN CAP_SETUID CAP_SETGID
 
 [Install]
 WantedBy=multi-user.target
@@ -201,13 +205,15 @@ EOF
 # 设置权限
 set_permissions() {
     print_msg "正在设置权限..." "$YELLOW"
-    chown -R $APP_USER:$APP_GROUP "$INSTALL_DIR"
+    # 服务以root运行，但数据目录仍然给nixvis用户访问
+    chown -R root:root "$INSTALL_DIR"
     chown -R $APP_USER:$APP_GROUP "$DATA_DIR"
-    chown -R $APP_USER:$APP_GROUP "$CONFIG_DIR"
+    chown -R root:root "$CONFIG_DIR"
     chown -R $APP_USER:$APP_GROUP "/var/log/nixvis"
     chmod 750 "$DATA_DIR"
-    chmod 750 "$CONFIG_DIR"
+    chmod 755 "$CONFIG_DIR"
     chmod 755 "$INSTALL_DIR"
+    chmod 640 "$CONFIG_DIR/config.json"
 }
 
 # 启用并启动服务
