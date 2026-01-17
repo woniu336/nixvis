@@ -49,6 +49,7 @@ curl -sS -O https://raw.githubusercontent.com/woniu336/nixvis/main/install.sh &&
 ```
 sudo chown nixvis:nixvis /opt/nixvis/nixvis
 sudo chmod +x /opt/nixvis/nixvis
+sudo systemctl stop nixvis
 sudo systemctl start nixvis
 ```
 
