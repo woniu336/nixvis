@@ -173,8 +173,8 @@ After=network.target
 
 [Service]
 Type=simple
-User=root
-Group=root
+User=$APP_USER
+Group=$APP_GROUP
 WorkingDirectory=$DATA_DIR
 ExecStart=$INSTALL_DIR/nixvis
 Restart=on-failure
@@ -191,9 +191,9 @@ ReadWritePaths=$DATA_DIR $CONFIG_DIR /var/log/nixvis
 Environment="HOME=$DATA_DIR"
 Environment="NIXVIS_SYSTEM_MODE=1"
 
-# 允许执行系统命令
-AmbientCapabilities=CAP_NET_RAW CAP_NET_ADMIN CAP_SETUID CAP_SETGID
-CapabilityBoundingSet=CAP_NET_RAW CAP_NET_ADMIN CAP_SETUID CAP_SETGID
+# 允许执行 IP 屏蔽命令（需要 CAP_NET_ADMIN）
+AmbientCapabilities=CAP_NET_ADMIN
+CapabilityBoundingSet=CAP_NET_ADMIN
 
 [Install]
 WantedBy=multi-user.target
@@ -205,7 +205,7 @@ EOF
 # 设置权限
 set_permissions() {
     print_msg "正在设置权限..." "$YELLOW"
-    # 服务以root运行，但数据目录仍然给nixvis用户访问
+    # 服务以nixvis用户运行，数据目录需要给nixvis用户访问
     chown -R root:root "$INSTALL_DIR"
     chown -R $APP_USER:$APP_GROUP "$DATA_DIR"
     chown -R root:root "$CONFIG_DIR"
