@@ -22,7 +22,14 @@
 
 ### Linux/Debian 系统部署
 
-自动安装脚本（推荐）
+
+> 放行防火墙，例如
+
+```
+ufw allow 9523/tcp
+```
+
+一键安装脚本
 
 ```bash
 curl -sS -O https://raw.githubusercontent.com/woniu336/nixvis/main/install.sh && chmod +x install.sh && ./install.sh
