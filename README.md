@@ -1,12 +1,8 @@
-#  NixVis
+#  原项目
 
-![](https://github.com/BeyondXinXin/nixvis/actions/workflows/ci-linux.yml/badge.svg?branch=main)
+> https://github.com/BeyondXinXin/nixvis
 
-NixVis 是一款基于 Go 语言开发的、开源轻量级 Nginx 日志分析工具，专为自部署场景设计。它提供直观的数据可视化和全面的统计分析功能，帮助您实时监控网站流量、访问来源和地理分布等关键指标，无需复杂配置即可快速部署使用。
 
-演示地址 [nixvis.beyondxin](https://nixvis.beyondxin.top/)
-
-![](https://img.beyondxin.top/2025/202504201620686.png)
 
 ## 功能特点
 
@@ -26,18 +22,13 @@ NixVis 是一款基于 Go 语言开发的、开源轻量级 Nginx 日志分析�
 
 ### Linux/Debian 系统部署
 
-1. 下载最新版本的二进制文件
+自动安装脚本（推荐）
 
 ```bash
-wget https://github.com/beyondxinxin/nixvis/releases/download/latest/nixvis-linux-amd64
-chmod +x nixvis-linux-amd64
+curl -sS -O https://raw.githubusercontent.com/woniu336/nixvis/main/install.sh && chmod +x install.sh && ./install.sh
 ```
 
-2. 使用自动安装脚本（推荐）
 
-```bash
-sudo ./install.sh
-```
 
 安装脚本会自动完成以下操作：
 - 创建专用用户和目录
@@ -46,23 +37,13 @@ sudo ./install.sh
 - 生成默认配置文件 `/etc/nixvis/config.json`
 - 启动服务
 
-3. 编辑配置文件
 
-```bash
-sudo nano /etc/nixvis/config.json
-```
 
-添加您的网站信息和日志路径，然后重启服务：
-
-```bash
-sudo systemctl restart nixvis
-```
-
-4. 访问 Web 界面
+访问 Web 界面
 
 首次访问会显示创建管理员账户的页面：
 ```
-http://your-server-ip:8089
+http://your-server-ip:9523
 ```
 
 ### 服务管理命令
@@ -83,134 +64,48 @@ sudo systemctl restart nixvis
 # 查看日志
 sudo journalctl -u nixvis -f
 
-# 卸载服务
-sudo ./uninstall.sh
 ```
 
-### Windows/Mac 系统使用
+### 卸载
 
-1. 下载对应平台的可执行文件
-
-2. 生成配置文件
-```bash
-./nixvis -gen-config
 ```
-执行后将在当前目录生成 nixvis_config.json 配置文件。
-
-3. 编辑配置文件 nixvis_config.json，添加您的网站信息和日志路径
-
-- 支持日志轮转路径 ([#2](https://github.com/BeyondXinXin/nixvis/issues/2))
-- 支持 PV 过滤规则 ([#21](https://github.com/BeyondXinXin/nixvis/issues/21))
-
-```json
-{
-  "websites": [
-    {
-      "name": "示例网站1",
-      "logPath": "./weblog_eg/blog.beyondxin.top.log"
-    },
-    {
-      "name": "示例网站2",
-      "logPath": "/var/log/nginx/blog.log"
-    }
-  ],
-  "system": {
-    "logDestination": "file",
-    "taskInterval": "5m"
-  },
-  "server": {
-    "Port": ":8088"
-  },
-  "pvFilter": {
-    "statusCodeInclude": [
-      200
-    ],
-    "excludePatterns": [
-      "favicon.ico$",
-      "robots.txt$",
-      "sitemap.xml$",
-      "\\.(?:js|css|jpg|jpeg|png|gif|svg|webp|woff|woff2|ttf|eot|ico)$",
-      "^/api/",
-      "^/ajax/",
-      "^/health$",
-      "^/_(?:nuxt|next)/",
-      "rss.xml$",
-      "feed.xml$",
-      "atom.xml$"
-    ],
-    "excludeIPs": ["127.0.0.1", "::1"] 
-  }
-}
+curl -sS -O https://raw.githubusercontent.com/woniu336/nixvis/main/uninstall.sh && chmod +x uninstall.sh && ./uninstall.sh
 ```
 
-4. 启动 NixVis 服务
-```bash
-./nixvis
+### 清空数据方式
+
+  方法一：命令行清空（推荐）
+
+
+```
+  # 1. 停止服务
+  sudo systemctl stop nixvis
+
+  # 2. 删除数据库文件
+  sudo rm -f /var/lib/nixvis/nixvis.db
+
+  # 3. 删除扫描状态文件（重新从头扫描日志）
+  sudo rm -f /var/lib/nixvis/nginx_scan_state.json
+
+  # 4. 重启服务（会自动创建新的数据库）
+  sudo systemctl start nixvis
+
+  # 5. 查看服务状态
+  sudo systemctl status nixvis
 ```
 
-5. 访问 Web 界面
-http://localhost:8088
+  方法二：只清空数据保留配置
 
+  如果你想保留配置文件但清空所有数据：
 
-## 从源码编译
-
-如果您想从源码编译 NixVis，请按照以下步骤操作：
-
-```bash
-# 克隆项目仓库
-git clone https://github.com/BeyondXinXin/nixvis.git
-cd nixvis
-
-# 编译项目
-go mod tidy
-go build -o nixvis ./cmd/nixvis/main.go
-
-# 或使用编译脚本
-# bash package.sh
 ```
+  # 1. 停止服务
+  sudo systemctl stop nixvis
 
-## docker部署
+  # 2. 只删除数据库和状态文件
+  sudo rm -f /var/lib/nixvis/nixvis.db
+  sudo rm -f /var/lib/nixvis/nginx_scan_state.json
 
-1. 下载 docker-compose
-
-```bash
-wget https://github.com/beyondxinxin/nixvis/releases/download/docker/docker-compose.yml
-wget https://github.com/beyondxinxin/nixvis/releases/download/docker/nixvis_config.json
+  # 3. 保留配置文件，重启服务
+  sudo systemctl start nixvis
 ```
-
-2. 修改 nixvis_config.json 添加您的网站信息和日志路径
-
-3. 修改 docker-compose.yml 添加文件挂载(nixvis_config.json、日志文件)
-
-如需分析多个日志文件，可以考虑将日志目录整体挂载（如 /var/log/nginx:/var/log/nginx:ro）。
-
-```yml
-version: '3'
-services:
-  nixvis:
-    image: ${{ secrets.DOCKERHUB_USERNAME }}/nixvis:latest
-    ports:
-      - "8088:8088"
-    volumes:
-      - ./nixvis_config.json:/app/nixvis_config.json:ro
-      - /var/log/nginx/blog.log:/var/log/nginx/blog.log:ro
-      - /etc/localtime:/etc/localtime:ro
-```
-
-4. 启动
-
-```bash
-docker compose up -d
-```
-
-5. 访问 Web 界面
-http://localhost:8088
-
-## 技术栈
-
-- **后端**: Go语言 (Gin框架、ip2region地理位置查询)
-- **前端**: 原生HTML5/CSS3/JavaScript (ECharts地图可视化、Chart.js图表)
-
-## 许可证
-
-NixVis 使用 MIT 许可证开源发布。详情请查看 LICENSE 文件。
