@@ -29,18 +29,11 @@
 ufw allow 9523/tcp
 ```
 
-一键安装脚本
+**一键安装脚本**
 
 ```bash
 curl -sS -O https://raw.githubusercontent.com/woniu336/nixvis/main/install.sh && chmod +x install.sh && ./install.sh
 ```
-
-设置正确的权限
-
-```
-sudo chown nixvis:nixvis /opt/nixvis/nixvis
-```
-
 
 
 安装脚本会自动完成以下操作：
@@ -49,6 +42,27 @@ sudo chown nixvis:nixvis /opt/nixvis/nixvis
 - 创建 systemd 服务
 - 生成默认配置文件 `/etc/nixvis/config.json`
 - 启动服务
+
+
+设置正确的权限
+
+```
+sudo chown nixvis:nixvis /opt/nixvis/nixvis
+```
+
+如果添加到 adm 组后仍有权限问题，可以检查：
+
+```
+  # 1. 确认 nginx 日志文件权限
+  ls -la /var/log/nginx/
+
+  # 2. 如果日志文件权限不是 640，可以修改
+  sudo chmod 640 /var/log/nginx/*.log
+  sudo chown www-data:adm /var/log/nginx/*.log
+
+  # 3. 确保 nginx 日志目录可访问
+  sudo chmod 755 /var/log/nginx
+```
 
 
 
