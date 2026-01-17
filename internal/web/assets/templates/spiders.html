@@ -1,0 +1,629 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{{ .title }}</title>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <link rel="stylesheet" href="/static/css/style.css">
+    <link rel="stylesheet" href="/static/css/tables.css">
+    <link rel="stylesheet" href="/static/css/media.css">
+    <style>
+        .tabs-container {
+            background: var(--box-bg);
+            border: 1px solid var(--border-color);
+            border-radius: 8px;
+            margin: 20px 0;
+            padding: 20px;
+        }
+
+        .tabs-header {
+            display: flex;
+            gap: 6px;
+            border-bottom: 2px solid var(--border-color);
+            padding-bottom: 15px;
+            margin-bottom: 20px;
+            flex-wrap: wrap;
+        }
+
+        .tab-button {
+            padding: 10px 18px;
+            border: none;
+            background: transparent;
+            color: var(--text-color);
+            font-size: 14px;
+            font-weight: 500;
+            cursor: pointer;
+            border-radius: 6px 6px 0 0;
+            transition: all 0.3s;
+            position: relative;
+        }
+
+        .tab-button:hover {
+            background: var(--highlight-bg);
+        }
+
+        .tab-button.active {
+            background: var(--active-btn);
+            color: white;
+        }
+
+        .tab-button .spider-badge {
+            display: inline-block;
+            background: var(--text-color);
+            color: var(--box-bg);
+            padding: 2px 8px;
+            border-radius: 10px;
+            font-size: 11px;
+            margin-left: 8px;
+            font-weight: 600;
+        }
+
+        .tab-button.active .spider-badge {
+            background: rgba(255, 255, 255, 0.3);
+            color: white;
+        }
+
+        .tab-content {
+            display: none;
+        }
+
+        .tab-content.active {
+            display: block;
+        }
+
+        .spider-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+            padding: 20px;
+            background: linear-gradient(135deg, var(--highlight-bg) 0%, var(--box-bg) 100%);
+            border: 1px solid var(--border-color);
+            border-radius: 8px;
+        }
+
+        .spider-info {
+            display: flex;
+            gap: 40px;
+            align-items: center;
+        }
+
+        .spider-info h2 {
+            margin: 0;
+            font-size: 1.4rem;
+            color: var(--header-color);
+        }
+
+        .spider-stats {
+            display: flex;
+            gap: 30px;
+        }
+
+        .stat-item {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+
+        .stat-label {
+            font-size: 12px;
+            color: var(--text-color);
+            opacity: 0.7;
+            margin-bottom: 4px;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .stat-value {
+            font-size: 1.8rem;
+            font-weight: 700;
+            color: var(--active-btn);
+        }
+
+        .ip-table {
+            width: 100%;
+            border-collapse: collapse;
+            background: var(--box-bg);
+            border-radius: 8px;
+            overflow: hidden;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+        }
+
+        .ip-table thead {
+            background: linear-gradient(135deg, var(--active-btn) 0%, var(--active-text) 100%);
+            color: white;
+        }
+
+        .ip-table th {
+            padding: 14px 16px;
+            text-align: left;
+            font-weight: 600;
+            font-size: 13px;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .ip-table td {
+            padding: 12px 16px;
+            border-bottom: 1px solid var(--border-color);
+            font-size: 13px;
+        }
+
+        .ip-table tbody tr {
+            transition: background-color 0.2s;
+        }
+
+        .ip-table tbody tr:hover {
+            background: var(--highlight-bg);
+        }
+
+        .ip-table tbody tr:last-child td {
+            border-bottom: none;
+        }
+
+        .ip-address {
+            font-family: 'Consolas', 'Monaco', monospace;
+            font-size: 14px;
+            font-weight: 600;
+            color: var(--header-color);
+            letter-spacing: 0.5px;
+        }
+
+        .ip-visits {
+            font-weight: 600;
+            color: var(--active-btn);
+            font-size: 14px;
+        }
+
+        .btn-block {
+            padding: 6px 14px;
+            background: #dc3545;
+            color: white;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 12px;
+            font-weight: 500;
+            transition: all 0.2s;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .btn-block:hover {
+            background: #c82333;
+            transform: translateY(-1px);
+            box-shadow: 0 2px 8px rgba(220, 53, 69, 0.3);
+        }
+
+        .btn-block:active {
+            transform: translateY(0);
+        }
+
+        .btn-block.disabled {
+            background: var(--text-color);
+            opacity: 0.3;
+            cursor: not-allowed;
+            transform: none;
+        }
+
+        .btn-view {
+            padding: 6px 14px;
+            background: var(--active-btn);
+            color: white;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 12px;
+            font-weight: 500;
+            transition: all 0.2s;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .btn-view:hover {
+            background: var(--active-text);
+            transform: translateY(-1px);
+            box-shadow: 0 2px 8px rgba(0, 123, 255, 0.3);
+        }
+
+        .btn-view:active {
+            transform: translateY(0);
+        }
+
+        .chart-container {
+            margin: 20px 0 30px 0;
+            height: 300px;
+            background: var(--highlight-bg);
+            border-radius: 8px;
+            padding: 20px;
+        }
+
+        .empty-state {
+            text-align: center;
+            padding: 80px 20px;
+            color: var(--text-color);
+            opacity: 0.6;
+        }
+
+        .empty-state-icon {
+            font-size: 4rem;
+            margin-bottom: 20px;
+        }
+
+        .show-all-btn {
+            display: block;
+            margin: 20px auto;
+            padding: 10px 30px;
+            background: var(--active-btn);
+            color: white;
+            border: none;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 14px;
+            font-weight: 500;
+            transition: all 0.3s;
+        }
+
+        .show-all-btn:hover {
+            background: var(--active-text);
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(0, 123, 255, 0.3);
+        }
+
+        .show-all-btn:active {
+            transform: translateY(0);
+        }
+
+        .hidden {
+            display: none !important;
+        }
+
+        .loading-spinner {
+            display: inline-block;
+            width: 20px;
+            height: 20px;
+            border: 2px solid var(--text-color);
+            border-top-color: transparent;
+            border-radius: 50%;
+            animation: spin 0.8s linear infinite;
+        }
+
+        @keyframes spin {
+            to {
+                transform: rotate(360deg);
+            }
+        }
+
+        .pagination-info {
+            text-align: center;
+            padding: 15px;
+            color: var(--text-color);
+            opacity: 0.7;
+            font-size: 13px;
+            background: var(--highlight-bg);
+            border-radius: 4px;
+            margin-top: 15px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header class="header-container">
+            <h1>
+                <select id="website-selector" class="website-dropdown">
+                    <option value="">加载中...</option>
+                </select> 蜘蛛访问统计
+            </h1>
+            <div class="header-actions">
+                <a href="/" class="nav-button">🏠 首页</a>
+                <a href="/suspicious" id="suspicious-link" class="nav-button">⚠️ 可疑IP</a>
+                <a href="/settings" class="nav-button">⚙️ 设置</a>
+            </div>
+        </header>
+
+        <div id="loading" class="box-container" style="text-align: center; padding: 60px;">
+            <span class="loading-spinner"></span>
+            <div style="margin-top: 15px;">加载中...</div>
+        </div>
+
+        <div id="spider-content" style="display: none;">
+            <div class="chart-container">
+                <canvas id="spiderChart"></canvas>
+            </div>
+
+            <div class="tabs-container">
+                <div class="tabs-header" id="tabs-header">
+                </div>
+                <div id="tabs-content">
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        let spiderChart = null;
+        let currentWebsiteId = '';
+        let spiderData = [];
+
+        document.addEventListener('DOMContentLoaded', function() {
+            loadWebsites();
+        });
+
+        function loadWebsites() {
+            fetch('/api/websites')
+                .then(response => response.json())
+                .then(data => {
+                    const selector = document.getElementById('website-selector');
+                    selector.innerHTML = '';
+                    data.websites.forEach(site => {
+                        const option = document.createElement('option');
+                        option.value = site.id;
+                        option.textContent = site.name;
+                        selector.appendChild(option);
+                    });
+
+                    // 从URL参数获取网站ID，如果没有则使用第一个
+                    const urlParams = new URLSearchParams(window.location.search);
+                    let websiteId = urlParams.get('id');
+
+                    if (!websiteId && data.websites.length > 0) {
+                        websiteId = data.websites[0].id;
+                    }
+
+                    if (websiteId) {
+                        selector.value = websiteId;
+                        loadSpiderStats(websiteId);
+                    }
+                });
+        }
+
+        document.getElementById('website-selector').addEventListener('change', function() {
+            const websiteId = this.value;
+            // 更新URL参数和可疑IP链接
+            const url = new URL(window.location);
+            url.searchParams.set('id', websiteId);
+            window.history.pushState({}, '', url);
+            updateSuspiciousLink(websiteId);
+            loadSpiderStats(websiteId);
+        });
+
+        function loadSpiderStats(websiteId) {
+            currentWebsiteId = websiteId;
+            // 更新可疑IP链接
+            updateSuspiciousLink(websiteId);
+            document.getElementById('loading').style.display = 'block';
+            document.getElementById('spider-content').style.display = 'none';
+
+            fetch(`/api/spiders?id=${websiteId}`)
+                .then(response => response.json())
+                .then(data => {
+                    document.getElementById('loading').style.display = 'none';
+                    document.getElementById('spider-content').style.display = 'block';
+
+                    spiderData = data.spiders || [];
+                    updateSpiderChart(spiderData);
+                    renderTabs(spiderData);
+                })
+                .catch(error => {
+                    console.error('加载蜘蛛统计失败:', error);
+                    document.getElementById('loading').innerHTML = '<div>加载失败</div>';
+                });
+        }
+
+        function updateSpiderChart(spiders) {
+            const ctx = document.getElementById('spiderChart').getContext('2d');
+            const labels = spiders.map(s => s.spider_name || s.spider_type);
+            const data = spiders.map(s => s.visits);
+
+            if (spiderChart) {
+                spiderChart.destroy();
+            }
+
+            spiderChart = new Chart(ctx, {
+                type: 'bar',
+                data: {
+                    labels: labels,
+                    datasets: [{
+                        label: '访问次数',
+                        data: data,
+                        backgroundColor: 'rgba(54, 162, 235, 0.6)',
+                        borderColor: 'rgba(54, 162, 235, 1)',
+                        borderWidth: 1
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    scales: {
+                        y: {
+                            beginAtZero: true
+                        }
+                    }
+                }
+            });
+        }
+
+        function renderTabs(spiders) {
+            const headerContainer = document.getElementById('tabs-header');
+            const contentContainer = document.getElementById('tabs-content');
+
+            headerContainer.innerHTML = '';
+            contentContainer.innerHTML = '';
+
+            if (spiders.length === 0) {
+                contentContainer.innerHTML = '<div class="empty-state"><div class="empty-state-icon">🕷️</div><div>暂无蜘蛛访问数据</div></div>';
+                return;
+            }
+
+            spiders.forEach((spider, index) => {
+                const tabName = spider.spider_name || spider.spider_type || `Spider ${index + 1}`;
+                const tabId = `tab-${index}`;
+
+                const tabButton = document.createElement('button');
+                tabButton.className = `tab-button ${index === 0 ? 'active' : ''}`;
+                tabButton.innerHTML = `${tabName} <span class="spider-badge">${spider.visits}</span>`;
+                tabButton.onclick = () => switchTab(index);
+
+                headerContainer.appendChild(tabButton);
+
+                const tabContent = document.createElement('div');
+                tabContent.className = `tab-content ${index === 0 ? 'active' : ''}`;
+                tabContent.id = tabId;
+
+                tabContent.innerHTML = renderSpiderContent(spider, index);
+                contentContainer.appendChild(tabContent);
+            });
+        }
+
+        function switchTab(index) {
+            const buttons = document.querySelectorAll('.tab-button');
+            const contents = document.querySelectorAll('.tab-content');
+
+            buttons.forEach((btn, i) => {
+                if (i === index) {
+                    btn.classList.add('active');
+                } else {
+                    btn.classList.remove('active');
+                }
+            });
+
+            contents.forEach((content, i) => {
+                if (i === index) {
+                    content.classList.add('active');
+                } else {
+                    content.classList.remove('active');
+                }
+            });
+        }
+
+        function renderSpiderContent(spider, index) {
+            const foreignIPs = spider.ips ? spider.ips.filter(ip => !isDomesticIP(ip.ip)) : [];
+            const domesticIPs = spider.ips ? spider.ips.filter(ip => isDomesticIP(ip.ip)) : [];
+
+            return `
+                <div class="spider-header">
+                    <div class="spider-info">
+                        <h2>${spider.spider_name || spider.spider_type}</h2>
+                        <div class="spider-stats">
+                            <div class="stat-item">
+                                <span class="stat-label">总访问</span>
+                                <span class="stat-value">${spider.visits}</span>
+                            </div>
+                            <div class="stat-item">
+                                <span class="stat-label">独立IP</span>
+                                <span class="stat-value">${spider.unique_ips}</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                ${foreignIPs.length > 0 ? `
+                    <h3 style="margin: 0 0 15px 0; font-size: 1.1rem; color: var(--header-color);">IP 列表 - 显示 ${Math.min(20, foreignIPs.length)} / ${foreignIPs.length} 个</h3>
+                    <table class="ip-table">
+                        <thead>
+                            <tr>
+                                <th style="width: 35%;">IP 地址</th>
+                                <th style="width: 25%;">访问次数</th>
+                                <th style="width: 40%;">操作</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            ${foreignIPs.slice(0, 20).map(ip => renderIPRow(ip)).join('')}
+                        </tbody>
+                    </table>
+                    ${foreignIPs.length > 20 ? `
+                        <div class="pagination-info">显示前 20 个 IP，共 ${foreignIPs.length} 个</div>
+                    ` : ''}
+                ` : ''}
+
+                ${!spider.ips || spider.ips.length === 0 ? `
+                    <div class="empty-state">
+                        <div class="empty-state-icon">📋</div>
+                        <div>暂无 IP 数据</div>
+                    </div>
+                ` : ''}
+            `;
+        }
+
+        function renderIPRow(ip) {
+            const isForeign = !isDomesticIP(ip.ip);
+
+            let actionHtml = '';
+            if (isForeign) {
+                actionHtml = `<button class="btn-block" onclick="blockSpiderIP('${ip.ip}')">屏蔽</button>`;
+            } else {
+                actionHtml = `<button class="btn-view" onclick="viewIPLogs('${ip.ip}')">查看日志</button>`;
+            }
+
+            return `
+                <tr>
+                    <td><span class="ip-address">${ip.ip}</span></td>
+                    <td><span class="ip-visits">${ip.visits}</span></td>
+                    <td>${actionHtml}</td>
+                </tr>
+            `;
+        }
+
+        function isDomesticIP(ip) {
+            const firstOctet = parseInt(ip.split('.')[0]);
+            const chinaIPRanges = [
+                [1, 126], [202, 202], [203, 203], [210, 211],
+                [218, 223], [60, 60], [61, 61], [111, 111],
+                [112, 112], [113, 113], [114, 114], [115, 115],
+                [116, 116], [117, 117], [118, 118], [119, 119],
+                [120, 120], [121, 121], [122, 122], [123, 123],
+                [124, 124], [125, 125], [139, 139], [171, 171]
+            ];
+
+            for (let i = 0; i < chinaIPRanges.length; i += 2) {
+                if (firstOctet >= chinaIPRanges[i] && firstOctet <= chinaIPRanges[i + 1]) {
+                    return true;
+                }
+            }
+
+            return false;
+        }
+
+        function blockSpiderIP(ip) {
+            if (!confirm(`确定要屏蔽蜘蛛IP ${ip} 吗？此操作将调用系统的 iptables/ipset 命令。`)) {
+                return;
+            }
+
+            fetch('/api/block', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({
+                    ip: ip,
+                    website_id: currentWebsiteId
+                })
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    alert(data.message);
+                } else {
+                    alert('屏蔽失败: ' + data.message);
+                }
+            })
+            .catch(error => {
+                console.error('屏蔽失败:', error);
+                alert('屏蔽失败: ' + error.message);
+            });
+        }
+
+        function updateSuspiciousLink(websiteId) {
+            const suspiciousLink = document.getElementById('suspicious-link');
+            if (suspiciousLink && websiteId) {
+                suspiciousLink.href = `/suspicious?id=${websiteId}`;
+            }
+        }
+
+        function viewIPLogs(ip) {
+            window.open(`/logs?filter=ip:${ip}`, '_blank');
+        }
+    </script>
+</body>
+</html>

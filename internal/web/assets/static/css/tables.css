@@ -1,0 +1,132 @@
+/* 通用表格样式 */
+.table-wrapper {
+    overflow-x: auto;
+    width: 100%;
+}
+
+.ranking-table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 14px;
+    table-layout: fixed;
+}
+
+.ranking-table th,
+.ranking-table td {
+    padding: 12px 10px;
+    text-align: left;
+    border-bottom: 1px solid var(--border-color);
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+.ranking-table th {
+    background-color: var(--highlight-bg);
+    color: var(--text-color);
+    font-weight: 600;
+}
+
+.ranking-table tbody tr:hover {
+    background-color: var(--highlight-bg);
+}
+
+.loading-row td {
+    text-align: center;
+    color: var(--footer-color);
+}
+
+#geo-ranking-table .region-col {
+    width: 80%;
+}
+
+#geo-ranking-table .item-count,
+#geo-ranking-table .visitor-col {
+    width: 20%;
+    text-align: center;
+}
+
+#url-ranking-table .item-count,
+#url-ranking-table .uv-col,
+#url-ranking-table .pv-col {
+    width: 15%;
+    text-align: center;
+}
+
+#referer-ranking-table .domain-col {
+    width: 85%;
+}
+
+#referer-ranking-table .item-count,
+#referer-ranking-table .visitor-col {
+    width: 15%;
+    text-align: center;
+}
+
+.client-block .name-col {
+    width: 75%;
+}
+
+.client-block .item-count,
+.client-block .count-col {
+    width: 25%;
+    text-align: center;
+}
+
+.rankings-content {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+}
+
+.ranking-block:first-child {
+    border-right: 1px solid var(--border-color);
+}
+
+.client-stats-content {
+    display: grid;
+    grid-template-columns: 1fr 1fr 1fr;
+}
+
+.client-block:not(:last-child) {
+    border-right: 1px solid var(--border-color);
+}
+
+.bar-container {
+    display: flex;
+    align-items: center;
+    gap: 1px;
+}
+
+.bar-label {
+    font-size: 14px;
+    color: var(--text-color);
+    width: 45%;
+    text-align: right;
+    font-weight: bold;
+}
+
+.bar {
+    position: relative;
+    width: 55%;
+    height: 30px;
+    background-color: transparent;
+    overflow: hidden;
+    margin-left: 6px;
+    border: 0px;
+    border-left: 1px solid var(--border-color);
+}
+
+.bar-fill {
+    height: 100%;
+    background-color: var(--bar-fill);
+}
+
+.bar-percentage {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    font-size: 16px;
+    color: var(--bar-text);
+    white-space: nowrap;
+}

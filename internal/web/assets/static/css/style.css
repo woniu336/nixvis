@@ -1,0 +1,730 @@
+/* 基本样式 */
+:root {
+    --bg-color: #f5f5f5;
+    --box-bg: white;
+    --text-color: #333;
+    --header-color: #2c3e50;
+    --border-color: #eee;
+    --shadow-color: rgba(0, 0, 0, 0.1);
+    --highlight-bg: #f8f9fa;
+    --bar-fill: #CCE3ED;
+    --bar-text: #696969cc;
+    --active-btn: #007bff;
+    --active-text: white;
+    --footer-color: #6c757d;
+}
+
+body.dark-mode {
+    --bg-color: #1a1a1a;
+    --box-bg: #2d2d2d;
+    --text-color: #e0e0e0;
+    --header-color: #ffffff;
+    --border-color: #444;
+    --shadow-color: rgba(0, 0, 0, 0.3);
+    --highlight-bg: #3d3d3d;
+    --bar-fill: #516a75;
+    --bar-text: #e0e0e0;
+    --active-btn: #5a9cff;
+    --active-text: white;
+    --footer-color: #aaaaaa;
+}
+
+body {
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif;
+    line-height: 1.6;
+    color: var(--text-color);
+    background-color: var(--bg-color);
+    margin: 0;
+    padding: 0;
+    transition: background-color 0.3s ease;
+}
+
+/* 布局容器 */
+.container {
+    max-width: 1300px;
+    margin: 0 auto;
+    padding: 0px;
+}
+
+.box-container {
+    background-color: var(--box-bg);
+    border-radius: 8px;
+    box-shadow: 0 2px 10px var(--shadow-color);
+    padding: 20px;
+    margin: 20px 0;
+    overflow: hidden;
+    transition: background-color 0.3s ease, box-shadow 0.3s ease;
+}
+
+.controls-box {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.chart-box {
+    padding: 20px 20px 60px 20px;
+    height: 350px;
+}
+
+.geo-stats-box {
+    height: 620px;
+}
+
+/* 网站整体统计  */
+.overall-stats {
+    display: flex;
+    align-items: left;
+    gap: 20px;
+}
+
+.stat-item {
+    display: flex;
+    flex-direction: column;
+    align-items: baseline;
+    margin-right: 25px;
+}
+
+.stat-label {
+    font-size: 13px;
+    color: var(--text-color);
+    opacity: 0.8;
+    font-weight: 600;
+}
+
+.stat-value {
+    font-size: 1.5rem;
+    font-weight: 700;
+    color: var(--header-color);
+    margin-left: 8px;
+    display: inline-block;
+    min-width: 60px;
+}
+
+/* 控制选项样式 */
+.control-options {
+    display: flex;
+    align-items: center;
+    justify-content: flex-end;
+    gap: 10px;
+}
+
+/* 视图切换容器 */
+.view-toggle {
+    display: flex;
+    padding: 0px 0px 10px 0px;
+}
+
+/* 切换按钮样式 */
+.data-view-toggle-btn {
+    padding: 8px 16px;
+    border: 1px solid var(--border-color);
+    background-color: var(--box-bg);
+    color: var(--text-color);
+    cursor: pointer;
+    transition: all 0.2s;
+    font-size: 14px;
+}
+
+.data-view-toggle-btn:first-child {
+    border-radius: 4px 0 0 4px;
+}
+
+.data-view-toggle-btn:last-child {
+    border-radius: 0 4px 4px 0;
+}
+
+.data-view-toggle-btn.active {
+    background-color: var(--active-btn);
+    color: var(--active-text);
+    border-color: var(--active-btn);
+}
+
+.data-view-toggle-btn.disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+}
+
+.data-map-toggle-btn {
+    padding: 8px 16px;
+    border: 1px solid var(--border-color);
+    background-color: var(--box-bg);
+    color: var(--text-color);
+    cursor: pointer;
+    transition: all 0.2s;
+    font-size: 14px;
+}
+
+.data-map-toggle-btn:first-child {
+    border-radius: 4px 0 0 4px;
+}
+
+.data-map-toggle-btn:last-child {
+    border-radius: 0 4px 4px 0;
+}
+
+.data-map-toggle-btn.active {
+    background-color: var(--active-btn);
+    color: var(--active-text);
+    border-color: var(--active-btn);
+}
+
+.data-map-toggle-btn.disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+}
+
+.geo-stats-content {
+    display: grid;
+    grid-template-columns: 3fr 2fr;
+    gap: 20px;
+    height: 100%;
+}
+
+.map-block {
+    width: 100%;
+    height: 100%;
+    display: flex;
+    flex-direction: column;
+}
+
+.map-container {
+    width: 100%;
+    height: 430px;
+    position: relative;
+    flex-grow: 1;
+}
+
+#geo-map {
+    width: 100%;
+    height: 100%;
+    min-height: 400px;
+}
+
+.geo-info-block {
+    display: flex;
+    flex-direction: column;
+    height: 100%;
+}
+
+.geo-info-block .table-wrapper {
+    flex-grow: 1;
+    margin-top: 10px;
+}
+
+/* 下拉菜单*/
+select {
+    font-size: 14px;
+    font-weight: bold;
+    padding: 5px 10px;
+    border-radius: 5px;
+    border: 1px solid var(--border-color);
+    background-color: var(--box-bg);
+    color: var(--text-color);
+    box-shadow: 0 1px 3px var(--shadow-color);
+    cursor: pointer;
+    width: auto;
+    transition: border-color 0.3s, box-shadow 0.3s;
+}
+
+select:focus {
+    outline: none;
+    border-color: var(--active-btn);
+    box-shadow: 0 0 0 2px rgba(0, 123, 255, 0.25);
+}
+
+.website-dropdown {
+    font-size: 1.5rem;
+    margin-right: 10px;
+}
+
+.date-range-dropdown {
+    margin-right: 0px;
+    appearance: none;
+    padding: 10px 20px 10px 15px;
+    min-width: 120px;
+    max-width: 160px;
+    background: var(--box-bg) url("data:image/svg+xml;charset=utf-8,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' viewBox='0 0 24 24' fill='none' stroke='%23333' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M6 9l6 6 6-6'/%3E%3C/svg%3E") no-repeat right 10px center;
+}
+
+.header-container {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    width: 100%;
+    padding: 0;
+    position: relative;
+    min-height: 80px;
+    text-align: center;
+}
+
+header h1 {
+    margin: 10px 0;
+    display: flex;
+    align-items: center;
+    position: absolute;
+    left: 50%;
+    transform: translateX(-50%);
+    white-space: nowrap;
+    z-index: 1;
+    color: var(--header-color);
+    font-size: 1.5rem;
+    font-weight: bold;
+}
+
+/* 主题切换按钮样式 */
+.theme-toggle {
+    background-color: transparent;
+    border: none;
+    cursor: pointer;
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: background-color 0.3s;
+}
+
+.theme-toggle:hover {
+    background-color: var(--highlight-bg);
+}
+
+.theme-toggle .light-icon,
+.theme-toggle .dark-icon {
+    font-size: 18px;
+}
+
+.theme-toggle .light-icon {
+    display: block;
+}
+
+/* 头部操作区域 */
+.header-actions {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    position: absolute;
+    right: 0;
+    top: 50%;
+    transform: translateY(-50%);
+}
+
+/* 导航按钮样式 */
+.nav-button {
+    padding: 10px 20px;
+    background-color: var(--box-bg);
+    border: 1px solid var(--border-color);
+    border-radius: 6px;
+    color: var(--text-color);
+    text-decoration: none;
+    font-size: 14px;
+    font-weight: 500;
+    transition: all 0.2s ease;
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+}
+
+.nav-button:hover {
+    background-color: var(--highlight-bg);
+    border-color: var(--active-btn);
+    color: var(--active-btn);
+    transform: translateY(-1px);
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+}
+
+.nav-button:active {
+    transform: translateY(0);
+}
+
+.theme-toggle .dark-icon {
+    display: none;
+}
+
+/* 当处于深色模式时 */
+body.dark-mode .theme-toggle .light-icon {
+    display: none;
+}
+
+body.dark-mode .theme-toggle .dark-icon {
+    display: block;
+}
+
+/* 页脚样式 */
+footer {
+    text-align: center;
+    padding: 15px 0;
+    color: var(--footer-color);
+    font-size: 0.9rem;
+    border-top: 1px solid var(--border-color);
+}
+
+.footer-content {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 20px;
+}
+
+.footer-content p {
+    margin: 0;
+}
+
+.footer-link {
+    color: var(--active-btn);
+    text-decoration: none;
+    font-weight: 500;
+    transition: color 0.2s;
+    display: inline-flex;
+    align-items: center;
+}
+
+.footer-link:hover {
+    color: var(--primary-color-dark);
+    text-decoration: underline;
+}
+
+.footer-link::before {
+    content: "📋";
+    margin-right: 5px;
+}
+
+/* ========== Settings Page Styles ========== */
+
+/* Path scanner section */
+.path-scanner {
+    margin-bottom: 30px;
+}
+
+.path-scanner h2 {
+    margin-top: 0;
+    margin-bottom: 15px;
+    color: var(--header-color);
+}
+
+.scan-input-group {
+    display: flex;
+    gap: 10px;
+    margin-bottom: 10px;
+}
+
+.scan-input-group input {
+    flex: 1;
+    padding: 10px 15px;
+    border: 1px solid var(--border-color);
+    border-radius: 6px;
+    background-color: var(--box-bg);
+    color: var(--text-color);
+    font-size: 14px;
+}
+
+.scan-input-group input:focus {
+    outline: none;
+    border-color: var(--active-btn);
+    box-shadow: 0 0 0 2px rgba(0, 123, 255, 0.25);
+}
+
+.scan-input-group button {
+    padding: 10px 25px;
+    background-color: var(--active-btn);
+    color: white;
+    border: none;
+    border-radius: 6px;
+    cursor: pointer;
+    font-size: 14px;
+    font-weight: 500;
+    transition: background-color 0.2s;
+}
+
+.scan-input-group button:hover {
+    background-color: #0056b3;
+}
+
+.scan-input-group button:disabled {
+    background-color: #ccc;
+    cursor: not-allowed;
+}
+
+.hint {
+    font-size: 13px;
+    color: var(--text-color);
+    opacity: 0.7;
+    margin: 0;
+}
+
+/* Scan results section */
+.scan-results {
+    margin-bottom: 30px;
+    padding: 20px;
+    background-color: var(--highlight-bg);
+    border-radius: 6px;
+}
+
+.scan-results h3 {
+    margin-top: 0;
+    margin-bottom: 15px;
+    color: var(--header-color);
+}
+
+.no-results {
+    color: var(--text-color);
+    opacity: 0.7;
+    text-align: center;
+    padding: 20px;
+}
+
+.scan-results-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+    gap: 15px;
+}
+
+.scan-result-item {
+    background-color: var(--box-bg);
+    border: 1px solid var(--border-color);
+    border-radius: 6px;
+    padding: 15px;
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+}
+
+.scan-result-name {
+    font-weight: 600;
+    color: var(--header-color);
+}
+
+.scan-result-path {
+    font-size: 12px;
+    color: var(--text-color);
+    opacity: 0.8;
+}
+
+.scan-result-path code {
+    background-color: var(--highlight-bg);
+    padding: 2px 6px;
+    border-radius: 3px;
+    word-break: break-all;
+}
+
+.btn-add-site {
+    padding: 8px 16px;
+    background-color: var(--active-btn);
+    color: white;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+    font-size: 13px;
+    transition: background-color 0.2s;
+    align-self: flex-start;
+}
+
+.btn-add-site:hover {
+    background-color: #0056b3;
+}
+
+/* Current sites section */
+.current-sites h2 {
+    margin-top: 0;
+    margin-bottom: 15px;
+    color: var(--header-color);
+}
+
+#sites-table {
+    width: 100%;
+}
+
+#sites-table th,
+#sites-table td {
+    padding: 12px 15px;
+    text-align: left;
+}
+
+#sites-table code {
+    background-color: var(--highlight-bg);
+    padding: 2px 6px;
+    border-radius: 3px;
+    font-size: 12px;
+}
+
+.btn-delete {
+    padding: 6px 14px;
+    background-color: #dc3545;
+    color: white;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+    font-size: 13px;
+    transition: background-color 0.2s;
+}
+
+.btn-delete:hover {
+    background-color: #c82333;
+}
+
+/* Modal styles */
+.modal {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0, 0, 0, 0.5);
+    display: none;
+    align-items: center;
+    justify-content: center;
+    z-index: 1000;
+}
+
+.modal.show {
+    display: flex;
+}
+
+.modal-content {
+    background-color: var(--box-bg);
+    border-radius: 8px;
+    width: 90%;
+    max-width: 500px;
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.2);
+}
+
+.modal-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 20px;
+    border-bottom: 1px solid var(--border-color);
+}
+
+.modal-header h3 {
+    margin: 0;
+    color: var(--header-color);
+}
+
+.modal-close {
+    font-size: 24px;
+    cursor: pointer;
+    color: var(--text-color);
+    opacity: 0.6;
+    transition: opacity 0.2s;
+}
+
+.modal-close:hover {
+    opacity: 1;
+}
+
+.modal-body {
+    padding: 20px;
+}
+
+.form-group {
+    margin-bottom: 15px;
+}
+
+.form-group label {
+    display: block;
+    margin-bottom: 5px;
+    font-weight: 500;
+    color: var(--header-color);
+}
+
+.form-group input {
+    width: 100%;
+    padding: 10px 15px;
+    border: 1px solid var(--border-color);
+    border-radius: 6px;
+    background-color: var(--box-bg);
+    color: var(--text-color);
+    font-size: 14px;
+    box-sizing: border-box;
+}
+
+.form-group input:focus {
+    outline: none;
+    border-color: var(--active-btn);
+    box-shadow: 0 0 0 2px rgba(0, 123, 255, 0.25);
+}
+
+.modal-actions {
+    display: flex;
+    gap: 10px;
+    justify-content: flex-end;
+    margin-top: 20px;
+}
+
+.btn-primary,
+.btn-secondary {
+    padding: 10px 20px;
+    border: none;
+    border-radius: 6px;
+    cursor: pointer;
+    font-size: 14px;
+    font-weight: 500;
+    transition: background-color 0.2s;
+}
+
+.btn-primary {
+    background-color: var(--active-btn);
+    color: white;
+}
+
+.btn-primary:hover {
+    background-color: #0056b3;
+}
+
+.btn-secondary {
+    background-color: var(--highlight-bg);
+    color: var(--text-color);
+}
+
+.btn-secondary:hover {
+    background-color: var(--border-color);
+}
+
+/* Loading row */
+.loading-row {
+    text-align: center;
+    color: var(--text-color);
+    opacity: 0.7;
+}
+
+/* Password input group */
+.password-input-group {
+    position: relative;
+    display: flex;
+    align-items: center;
+}
+
+.password-input-group input {
+    padding-right: 40px;
+}
+
+.password-input-group .password-toggle {
+    position: absolute;
+    right: 12px;
+    background: none;
+    border: none;
+    cursor: pointer;
+    font-size: 16px;
+    color: var(--text-color);
+    opacity: 0.6;
+    padding: 0;
+    width: 24px;
+    height: 24px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: opacity 0.2s;
+}
+
+.password-input-group .password-toggle:hover {
+    opacity: 1;
+}
+
+/* User info in header */
+.username-display {
+    font-size: 14px;
+    font-weight: 500;
+    color: var(--text-color);
+}

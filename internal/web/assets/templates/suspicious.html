@@ -1,0 +1,315 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{{ .title }}</title>
+    <link rel="stylesheet" href="/static/css/style.css">
+    <link rel="stylesheet" href="/static/css/tables.css">
+    <link rel="stylesheet" href="/static/css/media.css">
+    <style>
+        .btn {
+            padding: 8px 16px;
+            border: none;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 14px;
+            font-weight: 500;
+            transition: all 0.2s ease;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            min-width: 80px;
+        }
+
+        .btn-danger {
+            background-color: #dc3545;
+            color: white;
+            box-shadow: 0 2px 4px rgba(220, 53, 69, 0.3);
+        }
+
+        .btn-danger:hover {
+            background-color: #c82333;
+            transform: translateY(-1px);
+            box-shadow: 0 4px 8px rgba(220, 53, 69, 0.4);
+        }
+
+        .btn-danger:active {
+            transform: translateY(0);
+            box-shadow: 0 1px 2px rgba(220, 53, 69, 0.3);
+        }
+
+        .btn-disabled {
+            background-color: #6c757d;
+            color: white;
+            cursor: not-allowed;
+            opacity: 0.7;
+            box-shadow: none;
+        }
+
+        .btn-disabled:hover {
+            transform: none;
+            box-shadow: none;
+            background-color: #6c757d;
+        }
+
+        .blocked {
+            color: #28a745;
+            font-weight: bold;
+        }
+
+        .unblocked {
+            color: #dc3545;
+            font-weight: bold;
+        }
+
+        /* 表格样式改进 */
+        .stats-table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 14px;
+            margin-top: 15px;
+            box-shadow: 0 2px 8px var(--shadow-color);
+            border-radius: 8px;
+            overflow: hidden;
+        }
+
+        .stats-table thead {
+            background-color: var(--active-btn);
+            color: var(--active-text);
+        }
+
+        .stats-table th {
+            padding: 16px 12px;
+            text-align: left;
+            font-weight: 600;
+            border: none;
+        }
+
+        .stats-table td {
+            padding: 14px 12px;
+            border-bottom: 1px solid var(--border-color);
+            vertical-align: middle;
+        }
+
+        .stats-table tbody tr {
+            transition: background-color 0.2s ease;
+        }
+
+        .stats-table tbody tr:hover {
+            background-color: var(--highlight-bg);
+        }
+
+        .stats-table tbody tr:last-child td {
+            border-bottom: none;
+        }
+
+        /* 响应式表格 */
+        @media (max-width: 768px) {
+            .stats-table {
+                font-size: 13px;
+            }
+
+            .stats-table th,
+            .stats-table td {
+                padding: 10px 8px;
+            }
+        }
+
+        /* 页面标题样式 */
+        .box-container h2 {
+            color: var(--header-color);
+            margin-bottom: 20px;
+            padding-bottom: 12px;
+            border-bottom: 2px solid var(--border-color);
+            font-size: 1.5rem;
+        }
+
+        /* 加载状态样式 */
+        #loading {
+            text-align: center;
+            padding: 40px;
+            color: var(--text-color);
+            opacity: 0.7;
+            font-size: 16px;
+        }
+
+        /* 空状态样式 */
+        .stats-table td[colspan="5"] {
+            text-align: center;
+            padding: 40px;
+            color: var(--text-color);
+            opacity: 0.6;
+            font-style: italic;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header class="header-container">
+            <h1>
+                <select id="website-selector" class="website-dropdown">
+                    <option value="">加载中...</option>
+                </select> 可疑 IP 管理
+            </h1>
+            <div class="header-actions">
+                <a href="/" class="nav-button">🏠 首页</a>
+                <a href="/spiders" id="spiders-link" class="nav-button">🕷️ 蜘蛛统计</a>
+                <a href="/settings" class="nav-button">⚙️ 设置</a>
+            </div>
+        </header>
+
+        <div class="box-container">
+            <h2>可疑 IP 列表 (最多20条，按访问次数排序)</h2>
+            <div id="loading">加载中...</div>
+            <div id="suspicious-list" style="display: none;">
+                <table class="stats-table">
+                    <thead>
+                        <tr>
+                            <th>IP 地址</th>
+                            <th>访问次数</th>
+                            <th>类型</th>
+                            <th>状态</th>
+                            <th>操作</th>
+                        </tr>
+                    </thead>
+                    <tbody id="suspicious-table-body">
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            loadWebsites();
+        });
+
+        function loadWebsites() {
+            fetch('/api/websites')
+                .then(response => response.json())
+                .then(data => {
+                    const selector = document.getElementById('website-selector');
+                    selector.innerHTML = '';
+                    data.websites.forEach(site => {
+                        const option = document.createElement('option');
+                        option.value = site.id;
+                        option.textContent = site.name;
+                        selector.appendChild(option);
+                    });
+
+                    // 从URL参数获取网站ID，如果没有则使用第一个
+                    const urlParams = new URLSearchParams(window.location.search);
+                    let websiteId = urlParams.get('id');
+
+                    if (!websiteId && data.websites.length > 0) {
+                        websiteId = data.websites[0].id;
+                    }
+
+                    if (websiteId) {
+                        selector.value = websiteId;
+                        loadSuspiciousIPs(websiteId);
+                    }
+                });
+        }
+
+        document.getElementById('website-selector').addEventListener('change', function() {
+            const websiteId = this.value;
+            // 更新URL参数和蜘蛛链接
+            const url = new URL(window.location);
+            url.searchParams.set('id', websiteId);
+            window.history.pushState({}, '', url);
+            updateSpidersLink(websiteId);
+            loadSuspiciousIPs(websiteId);
+        });
+
+        function loadSuspiciousIPs(websiteId) {
+            // 更新蜘蛛链接
+            updateSpidersLink(websiteId);
+            document.getElementById('loading').style.display = 'block';
+            document.getElementById('suspicious-list').style.display = 'none';
+
+            fetch(`/api/suspicious?id=${websiteId}`)
+                .then(response => response.json())
+                .then(data => {
+                    document.getElementById('loading').style.display = 'none';
+                    document.getElementById('suspicious-list').style.display = 'block';
+
+                    const ips = data.suspicious_ips || [];
+                    updateSuspiciousTable(ips);
+                })
+                .catch(error => {
+                    console.error('加载可疑 IP 失败:', error);
+                    document.getElementById('loading').textContent = '加载失败';
+                });
+        }
+
+        function updateSuspiciousTable(ips) {
+            const tbody = document.getElementById('suspicious-table-body');
+            tbody.innerHTML = '';
+
+            ips.forEach(ip => {
+                const row = document.createElement('tr');
+                const isBlocked = ip.is_blocked === 1;
+
+                row.innerHTML = `
+                    <td>${ip.ip}</td>
+                    <td>${ip.access_count}</td>
+                    <td>${ip.reason_type}</td>
+                    <td>${isBlocked ? '<span class="blocked">已屏蔽</span>' : '<span class="unblocked">未屏蔽</span>'}</td>
+                    <td>
+                        ${isBlocked ?
+                            '<button class="btn btn-disabled" disabled>已屏蔽</button>' :
+                            `<button class="btn btn-danger" onclick="blockIP('${ip.ip}', '${ip.website_id}')">屏蔽</button>`
+                        }
+                    </td>
+                `;
+                tbody.appendChild(row);
+            });
+
+            if (ips.length === 0) {
+                const row = document.createElement('tr');
+                row.innerHTML = '<td colspan="5" style="text-align: center;">暂无可疑 IP</td>';
+                tbody.appendChild(row);
+            }
+        }
+
+        function updateSpidersLink(websiteId) {
+            const spidersLink = document.getElementById('spiders-link');
+            if (spidersLink && websiteId) {
+                spidersLink.href = `/spiders?id=${websiteId}`;
+            }
+        }
+
+        function blockIP(ip, websiteId) {
+            if (!confirm(`确定要屏蔽 IP ${ip} 吗？此操作将调用系统的 iptables/ipset 命令。`)) {
+                return;
+            }
+
+            fetch('/api/block', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({
+                    ip: ip,
+                    website_id: websiteId
+                })
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    alert(data.message);
+                    loadSuspiciousIPs(websiteId);
+                } else {
+                    alert('屏蔽失败: ' + data.message);
+                }
+            })
+            .catch(error => {
+                console.error('屏蔽失败:', error);
+                alert('屏蔽失败: ' + error.message);
+            });
+        }
+    </script>
+</body>
+</html>

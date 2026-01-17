@@ -1,0 +1,231 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{{ .title }}</title>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/echarts/dist/echarts.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/echarts/map/js/china.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/echarts/map/js/world.js"></script>
+    <link rel="stylesheet" href="/static/css/style.css">
+    <link rel="stylesheet" href="/static/css/tables.css">
+    <link rel="stylesheet" href="/static/css/media.css">
+</head>
+
+<body>
+    <div class="container">
+        <header class="header-container">
+            <h1>
+                <select id="website-selector" class="website-dropdown">
+                    <option value="">加载中...</option>
+                </select> 访问统计
+            </h1>
+            <div class="header-actions">
+                <a href="/spiders" id="spiders-link" class="nav-button">🕷️ 蜘蛛统计</a>
+                <a href="/logs" id="logs-link" class="nav-button">📋 完整日志</a>
+                <a href="/settings" class="nav-button">⚙️ 设置</a>
+                <button id="theme-toggle" class="theme-toggle" title="切换主题">
+                    <span class="light-icon">🌙</span>
+                    <span class="dark-icon">☀️</span>
+                </button>
+            </div>
+        </header>
+
+        <!-- 网站整体统计和时间选择 -->
+        <div class="box-container controls-box">
+            <div class="overall-stats">
+                <div class="stat-item">
+                    <span class="stat-label">访客数(UV):</span>
+                    <span class="stat-value" id="total-uv">-</span>
+                </div>
+                <div class="stat-item">
+                    <span class="stat-label">浏览量(PV):</span>
+                    <span class="stat-value" id="total-pv">-</span>
+                </div>
+                <div class="stat-item">
+                    <span class="stat-label">流量:</span>
+                    <span class="stat-value" id="total-traffic">-</span>
+                </div>
+            </div>
+
+            <div class="control-options">
+                <select id="date-range" class="date-range-dropdown">
+                    <option value="today">今天</option>
+                    <option value="yesterday">昨天</option>
+                    <option value="week">本周</option>
+                    <option value="last7days">最近7天</option>
+                    <option value="month">本月</option>
+                    <option value="last30days">最近30天</option>
+                </select>
+            </div>
+        </div>
+
+        <!-- 图表展示区 -->
+        <div class="box-container chart-box">
+            <div class="chart-controls">
+                <div class="view-toggle">
+                    <button class="data-view-toggle-btn active" data-view="hourly">按时</button>
+                    <button class="data-view-toggle-btn" data-view="daily">按天</button>
+                </div>
+            </div>
+            <canvas id="visitsChart"></canvas>
+        </div>
+
+
+        <!-- 排名数据（左右布局） -->
+        <div class="box-container rankings-section">
+            <div class="rankings-content">
+                <!-- 网页排名 -->
+                <div class="ranking-block">
+                    <div class="table-wrapper">
+                        <table id="url-ranking-table" class="ranking-table">
+                            <thead>
+                                <tr>
+                                    <th class="url-col">URL</th>
+                                    <th class="uv-col">访客</th>
+                                    <th class="pv-col">浏览</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr class="loading-row">
+                                    <td colspan="3">加载中...</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+
+                <!-- 来源域名 -->
+                <div class="ranking-block">
+                    <div class="table-wrapper">
+                        <table id="referer-ranking-table" class="ranking-table">
+                            <thead>
+                                <tr>
+                                    <th class="domain-col">来源域名</th>
+                                    <th class="visitor-col">访客</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr class="loading-row">
+                                    <td colspan="2">加载中...</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- 客户端统计（三等分布局） -->
+        <div class="box-container client-stats-section">
+            <div class="client-stats-content">
+                <!-- 浏览器统计 -->
+                <div class="client-block">
+                    <div class="table-wrapper">
+                        <table id="browser-ranking-table" class="ranking-table">
+                            <thead>
+                                <tr>
+                                    <th class="name-col">浏览器</th>
+                                    <th class="count-col">访客</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr class="loading-row">
+                                    <td colspan="2">加载中...</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+
+                <!-- 操作系统统计 -->
+                <div class="client-block">
+                    <div class="table-wrapper">
+                        <table id="os-ranking-table" class="ranking-table">
+                            <thead>
+                                <tr>
+                                    <th class="name-col">操作系统</th>
+                                    <th class="count-col">访客</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr class="loading-row">
+                                    <td colspan="2">加载中...</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+
+                <!-- 设备统计 -->
+                <div class="client-block">
+                    <div class="table-wrapper">
+                        <table id="device-ranking-table" class="ranking-table">
+                            <thead>
+                                <tr>
+                                    <th class="name-col">设备</th>
+                                    <th class="count-col">访客</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr class="loading-row">
+                                    <td colspan="2">加载中...</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+
+        <!-- 归属地展示区 -->
+        <div class="box-container geo-stats-box">
+            <div class="geo-stats-content">
+                <!-- 左侧地图区域 -->
+
+                <div class="map-block">
+                    <div class="geo-controls">
+                        <div class="view-toggle">
+                            <button class="data-map-toggle-btn active" data-map-view="china">国内</button>
+                            <button class="data-map-toggle-btn" data-map-view="world">全球</button>
+                        </div>
+                    </div>
+                    <div class="map-container">
+                        <div id="geo-map"></div>
+                    </div>
+                </div>
+
+                <!-- 右侧控制和排名区域 -->
+                <div class="geo-info-block">
+                    <!-- 地区访问排名 -->
+                    <div class="table-wrapper">
+                        <table id="geo-ranking-table" class="ranking-table">
+                            <thead>
+                                <tr>
+                                    <th class="region-col">地区</th>
+                                    <th class="visitor-col">访客</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr class="loading-row">
+                                    <td colspan="2">加载中...</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <footer>
+            <p>NixVis - Nginx 网站日志分析工具</p>
+        </footer>
+
+        <script type="module" src="/static/js/main.js"></script>
+    </div>
+</body>
+
+</html>

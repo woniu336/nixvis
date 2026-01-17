@@ -1,0 +1,178 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{{ .title }}</title>
+    <link rel="stylesheet" href="/static/css/style.css">
+    <link rel="stylesheet" href="/static/css/tables.css">
+    <link rel="stylesheet" href="/static/css/media.css">
+</head>
+
+<body>
+    <div class="container">
+        <header class="header-container">
+            <h1>NixVis - 站点设置</h1>
+            <div class="header-actions">
+                <a href="/" class="nav-button">返回首页</a>
+                <button id="theme-toggle" class="theme-toggle" title="切换主题">
+                    <span class="light-icon">🌙</span>
+                    <span class="dark-icon">☀️</span>
+                </button>
+            </div>
+        </header>
+
+        <div class="box-container">
+            <!-- 日志路径输入区域 -->
+            <div class="path-scanner">
+                <h2>扫描日志文件</h2>
+                <div class="scan-input-group">
+                    <input type="text" id="log-path-input" placeholder="输入日志目录路径 (如: ./logs 或 /var/log/nginx)">
+                    <button id="scan-btn">扫描</button>
+                </div>
+                <p class="hint">支持目录路径（递归扫描）、通配符路径（如 ./logs/*-access.log）或单个文件路径</p>
+            </div>
+
+            <!-- 扫描结果区域 -->
+            <div id="scan-results" class="scan-results" style="display: none;">
+                <h3>扫描结果</h3>
+                <div id="scan-results-list"></div>
+            </div>
+
+            <!-- 当前站点列表 -->
+            <div class="current-sites">
+                <h2>当前站点</h2>
+                <div class="table-wrapper">
+                    <table id="sites-table">
+                        <thead>
+                            <tr>
+                                <th>站点ID</th>
+                                <th>站点名称</th>
+                                <th>日志路径</th>
+                                <th>操作</th>
+                            </tr>
+                        </thead>
+                        <tbody id="sites-list">
+                            <tr class="loading-row">
+                                <td colspan="4">加载中...</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+            <!-- 排除模式管理 -->
+            <div class="exclude-config">
+                <h2>排除模式</h2>
+                <p class="hint">排除匹配指定模式的路径（支持通配符 *）</p>
+                <div class="input-group">
+                    <input type="text" id="exclude-pattern-input" placeholder="输入排除模式 (如: *.png, /api/*)">
+                    <button id="add-exclude-pattern-btn">添加</button>
+                </div>
+                <div class="table-wrapper">
+                    <table id="exclude-patterns-table">
+                        <thead>
+                            <tr>
+                                <th>模式</th>
+                                <th>操作</th>
+                            </tr>
+                        </thead>
+                        <tbody id="exclude-patterns-list">
+                            <tr class="loading-row">
+                                <td colspan="2">加载中...</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+            <!-- 排除IP管理 -->
+            <div class="exclude-config">
+                <h2>排除IP</h2>
+                <p class="hint">排除指定IP的访问统计</p>
+                <div class="input-group">
+                    <input type="text" id="exclude-ip-input" placeholder="输入IP地址 (如: 192.168.1.1)">
+                    <button id="add-exclude-ip-btn">添加</button>
+                </div>
+                <div class="table-wrapper">
+                    <table id="exclude-ips-table">
+                        <thead>
+                            <tr>
+                                <th>IP地址</th>
+                                <th>操作</th>
+                            </tr>
+                        </thead>
+                        <tbody id="exclude-ips-list">
+                            <tr class="loading-row">
+                                <td colspan="2">加载中...</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+            <!-- 修改密码 -->
+            <div class="exclude-config">
+                <h2>修改密码</h2>
+                <p class="hint">修改当前用户的登录密码</p>
+                <form id="change-password-form" style="max-width: 400px;">
+                    <div class="form-group">
+                        <label for="old-password">原密码</label>
+                        <div class="password-input-group">
+                            <input type="password" id="old-password" placeholder="请输入原密码" required>
+                            <button type="button" class="password-toggle" data-target="old-password">👁</button>
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label for="new-password">新密码</label>
+                        <div class="password-input-group">
+                            <input type="password" id="new-password" placeholder="请输入新密码（至少6位）" required minlength="6">
+                            <button type="button" class="password-toggle" data-target="new-password">👁</button>
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label for="new-password-confirm">确认新密码</label>
+                        <div class="password-input-group">
+                            <input type="password" id="new-password-confirm" placeholder="请再次输入新密码" required minlength="6">
+                            <button type="button" class="password-toggle" data-target="new-password-confirm">👁</button>
+                        </div>
+                    </div>
+                    <button type="submit" class="btn-primary" id="change-password-btn">修改密码</button>
+                </form>
+            </div>
+        </div>
+
+        <!-- 添加站点对话框 -->
+        <div id="add-site-modal" class="modal" style="display: none;">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h3>添加站点</h3>
+                    <span class="modal-close">&times;</span>
+                </div>
+                <div class="modal-body">
+                    <div class="form-group">
+                        <label for="site-name">站点名称</label>
+                        <input type="text" id="site-name" placeholder="例如: mysite">
+                    </div>
+                    <div class="form-group">
+                        <label for="site-log-path">日志路径</label>
+                        <input type="text" id="site-log-path" placeholder="日志文件路径">
+                    </div>
+                    <div class="modal-actions">
+                        <button id="confirm-add-site" class="btn-primary">添加</button>
+                        <button id="cancel-add-site" class="btn-secondary">取消</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <footer>
+            <p>NixVis - Nginx 网站日志分析工具</p>
+        </footer>
+
+        <script type="module" src="/static/js/settings.js"></script>
+    </div>
+</body>
+
+</html>

@@ -1,0 +1,31 @@
+[Unit]
+Description=NixVis Nginx Log Analyzer
+Documentation=https://github.com/beyondxinxin/nixvis
+After=network.target
+
+[Service]
+Type=simple
+User=nixvis
+Group=nixvis
+WorkingDirectory=/opt/nixvis
+ExecStart=/opt/nixvis/nixvis
+Restart=on-failure
+RestartSec=5s
+
+# Security hardening
+NoNewPrivileges=true
+PrivateTmp=true
+ProtectSystem=strict
+ProtectHome=true
+ReadWritePaths=/var/lib/nixvis /etc/nixvis /var/log/nixvis
+
+# Environment
+Environment="HOME=/var/lib/nixvis"
+
+# Logging
+StandardOutput=journal
+StandardError=journal
+SyslogIdentifier=nixvis
+
+[Install]
+WantedBy=multi-user.target
