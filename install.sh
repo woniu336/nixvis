@@ -175,7 +175,7 @@ After=network.target
 Type=simple
 User=$APP_USER
 Group=$APP_GROUP
-WorkingDirectory=$INSTALL_DIR
+WorkingDirectory=$DATA_DIR
 ExecStart=$INSTALL_DIR/nixvis
 Restart=on-failure
 RestartSec=5s
@@ -189,6 +189,7 @@ ReadWritePaths=$DATA_DIR $CONFIG_DIR /var/log/nixvis
 
 # 环境变量
 Environment="HOME=$DATA_DIR"
+Environment="NIXVIS_SYSTEM_MODE=1"
 
 [Install]
 WantedBy=multi-user.target
