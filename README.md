@@ -1,4 +1,4 @@
-# NixVis
+#  NixVis
 
 ![](https://github.com/BeyondXinXin/nixvis/actions/workflows/ci-linux.yml/badge.svg?branch=main)
 
