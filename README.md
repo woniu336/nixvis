@@ -35,6 +35,12 @@ ufw allow 9523/tcp
 curl -sS -O https://raw.githubusercontent.com/woniu336/nixvis/main/install.sh && chmod +x install.sh && ./install.sh
 ```
 
+设置正确的权限
+
+```
+sudo chown nixvis:nixvis /opt/nixvis/nixvis
+```
+
 
 
 安装脚本会自动完成以下操作：

@@ -193,6 +193,10 @@ set_permissions() {
     # 数据与日志
     chown -R $APP_USER:$APP_GROUP "$DATA_DIR" "$LOG_DIR"
     chmod 750 "$DATA_DIR" "$LOG_DIR"
+
+    # 将 nixvis 用户添加到 adm 组，以便读取 nginx 日志文件
+    msg "将 nixvis 用户添加到 adm 组（读取 nginx 日志）" "$YELLOW"
+    usermod -aG adm "$APP_USER"
 }
 
 # ================= 启动服务 =================
