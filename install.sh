@@ -1,7 +1,7 @@
 #!/bin/bash
 #
 # NixVis Installation Script for Debian/Ubuntu
-# This script installs NixVis as a system service
+# This script downloads and installs NixVis as a system service
 #
 
 set -e
@@ -10,6 +10,7 @@ set -e
 RED='\033[0;31m'
 GREEN='\033[0;32m'
 YELLOW='\033[1;33m'
+BLUE='\033[0;34m'
 NC='\033[0m' # No Color
 
 # Configuration
@@ -20,6 +21,7 @@ INSTALL_DIR="/opt/nixvis"
 DATA_DIR="/var/lib/nixvis"
 CONFIG_DIR="/etc/nixvis"
 SERVICE_FILE="/etc/systemd/system/nixvis.service"
+DOWNLOAD_URL="https://github.com/woniu336/nixvis/releases/download/v2.2.3/nixvis-linux-amd64"
 BINARY_NAME="nixvis-linux-amd64"
 
 # Print colored message
@@ -37,15 +39,6 @@ check_root() {
     fi
 }
 
-# Check if binary exists
-check_binary() {
-    if [ ! -f "$BINARY_NAME" ]; then
-        print_msg "Error: Binary file '$BINARY_NAME' not found in current directory" "$RED"
-        print_msg "Please build the binary first or download it" "$YELLOW"
-        exit 1
-    fi
-}
-
 # Detect system architecture
 detect_arch() {
     ARCH=$(uname -m)
@@ -54,7 +47,8 @@ detect_arch() {
             print_msg "Detected architecture: x86_64 (amd64)" "$GREEN"
             ;;
         aarch64)
-            print_msg "Detected architecture: aarch64 (arm64)" "$GREEN"
+            print_msg "Detected architecture: aarch64 (arm64)" "$YELLOW"
+            print_msg "Note: Current download is for amd64 only" "$YELLOW"
             ;;
         *)
             print_msg "Warning: Untested architecture: $ARCH" "$YELLOW"
@@ -64,10 +58,50 @@ detect_arch() {
 
 # Stop existing service if running
 stop_service() {
-    if systemctl is-active --quiet nixvis; then
+    if systemctl is-active --quiet nixvis 2>/dev/null; then
         print_msg "Stopping existing NixVis service..." "$YELLOW"
         systemctl stop nixvis
     fi
+}
+
+# Download binary from GitHub
+download_binary() {
+    print_msg "Downloading NixVis from GitHub..." "$BLUE"
+
+    # Create temp directory for download
+    TEMP_DIR=$(mktemp -d)
+    cd "$TEMP_DIR"
+
+    # Download with progress
+    if command -v wget &> /dev/null; then
+        wget --show-progress -O "$BINARY_NAME" "$DOWNLOAD_URL"
+    elif command -v curl &> /dev/null; then
+        curl -L --progress-bar -o "$BINARY_NAME" "$DOWNLOAD_URL"
+    else
+        print_msg "Error: Neither wget nor curl is available" "$RED"
+        rm -rf "$TEMP_DIR"
+        exit 1
+    fi
+
+    # Verify download
+    if [ ! -f "$BINARY_NAME" ]; then
+        print_msg "Error: Download failed" "$RED"
+        rm -rf "$TEMP_DIR"
+        exit 1
+    fi
+
+    # Get file size
+    SIZE=$(du -h "$BINARY_NAME" | cut -f1)
+    print_msg "Downloaded: $BINARY_NAME ($SIZE)" "$GREEN"
+
+    # Move to install directory
+    mkdir -p "$INSTALL_DIR"
+    mv "$BINARY_NAME" "$INSTALL_DIR/nixvis"
+    chmod +x "$INSTALL_DIR/nixvis"
+
+    # Cleanup
+    cd - > /dev/null
+    rm -rf "$TEMP_DIR"
 }
 
 # Create user and group
@@ -88,14 +122,6 @@ create_directories() {
     mkdir -p "$CONFIG_DIR"
     mkdir -p "$DATA_DIR/logs"
     mkdir -p "/var/log/nixvis"
-}
-
-# Install binary
-install_binary() {
-    print_msg "Installing binary to $INSTALL_DIR..." "$YELLOW"
-    cp "$BINARY_NAME" "$INSTALL_DIR/nixvis"
-    chmod +x "$INSTALL_DIR/nixvis"
-    chown $APP_USER:$APP_GROUP "$INSTALL_DIR/nixvis"
 }
 
 # Create default config
@@ -190,7 +216,7 @@ start_service() {
     systemctl start nixvis
 
     # Wait a moment for service to start
-    sleep 2
+    sleep 3
 
     if systemctl is-active --quiet nixvis; then
         print_msg "NixVis service started successfully!" "$GREEN"
@@ -204,17 +230,23 @@ print_status() {
     echo ""
     print_msg "=== Installation Complete ===" "$GREEN"
     echo ""
-    echo "Service status: systemctl status nixvis"
-    echo "View logs: journalctl -u nixvis -f"
-    echo "Config file: $CONFIG_DIR/config.json"
-    echo "Data directory: $DATA_DIR"
-    echo "Web interface: http://localhost:9523"
+    echo "Service status:   systemctl status nixvis"
+    echo "View logs:        journalctl -u nixvis -f"
+    echo "Config file:      $CONFIG_DIR/config.json"
+    echo "Data directory:   $DATA_DIR"
+    echo "Web interface:    http://localhost:9523"
     echo ""
     echo "Useful commands:"
     echo "  Start:   sudo systemctl start nixvis"
     echo "  Stop:    sudo systemctl stop nixvis"
     echo "  Restart: sudo systemctl restart nixvis"
     echo "  Status:  sudo systemctl status nixvis"
+    echo ""
+    print_msg "Next steps:" "$BLUE"
+    echo "  1. Edit config: sudo nano $CONFIG_DIR/config.json"
+    echo "  2. Add your websites and log paths"
+    echo "  3. Restart: sudo systemctl restart nixvis"
+    echo "  4. Visit: http://$(hostname -I | awk '{print $1}'):9523"
     echo ""
 }
 
@@ -223,14 +255,16 @@ main() {
     echo ""
     print_msg "=== NixVis Installation Script ===" "$GREEN"
     echo ""
+    print_msg "Version: v2.2.3" "$BLUE"
+    print_msg "Download: $DOWNLOAD_URL" "$BLUE"
+    echo ""
 
     check_root
-    check_binary
     detect_arch
     stop_service
+    download_binary
     create_user
     create_directories
-    install_binary
     create_config
     install_service
     set_permissions
