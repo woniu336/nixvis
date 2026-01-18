@@ -127,6 +127,10 @@ create_config() {
       "sitemap.xml$",
       "\\.(?:js|css|jpg|jpeg|png|gif|svg|webp|woff|woff2|ttf|eot|ico)$",
       "^/(?:api|ajax)/",
+      "^/index\\.php/ajax/",
+      "^/index\\.php/user/ajax_ulog$",
+      "^/health$",
+      "^/_(?:nuxt|next)/",
       "rss.xml$",
       "feed.xml$",
       "atom.xml$"
